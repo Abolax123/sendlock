@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String     @id @default(cuid())
+  name             String
+  email            String     @unique
+  country          String
+  blaaizCustomerId String?
+  transfers        Transfer[]
+}
+
+model Transfer {
+  id                  String   @id @default(cuid())
+  publicToken         String   @unique
+  senderId            String
+  recipientName       String
+  recipientPhone      String
+  bankId              String
+  bankName            String
+  accountNumber       String
+  verifiedAccountName String
+  sendCurrency        String
+  sendAmount          Float
+  receiveAmountNgn    Float
+  fee                 Float
+  rate                Float
+  riskLevel           String
+  status              String   @default("DRAFT")
+  blaaizCollectionId  String?
+  blaaizPayoutId      String?
+  confirmToken        String   @unique
+  expiresAt           DateTime
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  sender              User     @relation(fields: [senderId], references: [id])
+  events              Event[]
+}
+
+model Event {
+  id         String   @id @default(cuid())
+  transferId String
+  type       String
+  message    String
+  createdAt  DateTime @default(now())
+  transfer   Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+}
